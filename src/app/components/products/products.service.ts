@@ -1,56 +1,64 @@
 import { Injectable } from '@angular/core';
 import { Products } from './products.interface';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { retry, catchError, map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductsService {
-  productArr: Products[] = [
-    {
-      _id: '123',
-      name: 'abc',
-      type: 'electronic',
-      manfuctured_date: '12/12/2022',
-      price: 400,
-      image: '',
-      description: 'test data',
-    },
-    {
-      _id: '223',
-      name: 'xyz',
-      type: 'clothes',
-      manfuctured_date: '11/12/2022',
-      price: 400,
-      image: '',
-      description: 'test data `123',
-    },
-  ];
-  constructor() {}
 
-  async create(product: Products) {
-    console.log('product', product);
+  private baseurl = 'http://localhost:3000';
+  constructor(private http: HttpClient) {}
 
-    return this.productArr.push(product);
+  httpOptions = {
+    headers: new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': '',
+    }),
+  };
+
+  createOne(product: Products) {
+    return this.http
+    .post<any>(`${this.baseurl}/products/`, product)
+    .pipe(retry(1), map((res) => res?.data?.product || null), catchError(this.errorHandl));
   }
-  async update(id: string, product: Products) {
-    this.productArr = this.productArr.map((p) => {
-      if (p._id == id) {
-        return product;
-      }
-      return p;
+  updateOne(id: string, product: Products) {
+    return this.http
+    .patch<any>(`${this.baseurl}/products/${id}`, product)
+    .pipe(retry(1), map((res) => res?.status === 'success' || 'fail'), catchError(this.errorHandl));
+  }
+  deleteOne(id: string) {
+    return this.http
+    .delete<any>(`${this.baseurl}/products/${id}`)
+    .pipe(retry(1), map((res) => res?.status === 'success' || 'fail'), catchError(this.errorHandl));
+
+  }
+  findAll() {
+    return this.http
+    .get<any>(this.baseurl + '/products/')
+    .pipe(retry(1), map((res) => res?.data?.products || []), catchError(this.errorHandl));
+  }
+  findOne(id: string) {
+    return this.http
+    .get<any>(`${this.baseurl}/products/${id}`)
+    .pipe(retry(1), map((res) => res?.data?.product || null), catchError(this.errorHandl));
+  }
+
+  // Error handling
+  errorHandl(error) {
+    let errorMessage = '';
+    if (error.error instanceof ErrorEvent) {
+      // Get client-side error
+      errorMessage = error.error.message;
+    } else {
+      // Get server-side error
+      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+    }
+    console.log(errorMessage);
+    return throwError(() => {
+      return errorMessage;
     });
-    return this.display();
-  }
-  async delete(id: string) {
-    this.productArr = this.productArr.filter((p) => p._id != id);
-    return this.display();
-  }
-  async display() {
-    return this.productArr;
-  }
-  async get(id: string) {
-    const updateDetails = this.productArr.find((p) => p._id == id);
-    console.log('updateDetails==>', updateDetails);
-    return updateDetails;
   }
 }

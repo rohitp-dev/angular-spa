@@ -24,16 +24,16 @@ export class AddProductsComponent implements OnInit {
   ngOnInit() {
     this.route.paramMap.subscribe(async(params) => {
        this.paramsId = params.get('id');
-      console.log('ID from URL:', this.paramsId);
-      this.updateProductDetail = await this.productsService.get(this.paramsId);
-      // You can use the id in your component logic here
-      this.myForm.patchValue(this.updateProductDetail);
+      if (this.paramsId) {
+        this.updateProductDetail = await this.productsService.findOne(this.paramsId).toPromise();
+        this.myForm.patchValue(this.updateProductDetail);
+      }
     });
 
     this.myForm = this.fb.group({
       name: ['', Validators.required],
       type: ['', Validators.required],
-      manfuctured_date: ['', Validators.required],
+      manufactured_date: ['', Validators.required],
       price: ['', Validators.required],
       description: ['', Validators.required],
     });
@@ -42,11 +42,10 @@ export class AddProductsComponent implements OnInit {
   async addProducts() {
     if(!this.paramsId)
     {
-      await this.productsService.create(this.myForm.value);
+      await this.productsService.createOne(this.myForm.value).toPromise();
       return this.router.navigate(['/products']);
     }
-    this.productsService.update(this.paramsId, this.myForm.value);
-    console.log("this.myForm.value",this.myForm.value);
+    await this.productsService.updateOne(this.paramsId, this.myForm.value).toPromise();
     
     return this.router.navigate(['/products']);
 

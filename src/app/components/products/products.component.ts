@@ -14,11 +14,12 @@ export class ProductsComponent implements OnInit {
     this.getAllproducts();
   }
   async getAllproducts() {
-    this.allProducts = await this.productsService.display();
+    this.allProducts = await this.productsService.findAll().toPromise();
   }
 
   async deleteProduct(id: string) {
-    this.allProducts = await this.productsService.delete(id);
+    await this.productsService.deleteOne(id).toPromise()
+    this.allProducts = await this.productsService.findAll().toPromise();
     this.getAllproducts();
   }
   async editProduct(id: string) {
