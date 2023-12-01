@@ -1,0 +1,73 @@
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>
+                        Products
+                    </h3>
+
+                    <button
+                        type="button"
+                        class="btn btn-primary float-right"
+                        routerLink="/addProduct"
+                    >
+                        Add Product
+                    </button>
+                </div>
+
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Manufactured Date</th>
+                                <th>Price</th>
+                                <th>Image</th>
+                                <th>Description</th>
+                                <th>Action</th>
+
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr *ngFor="let product of allProducts">
+                                <td>{{ product.name }}</td>
+                                <td>{{ product.type }}</td>
+                                <td>{{ product.manufactured_date }}</td>
+                                <td>{{ product.price }}</td>
+                                <td>{{ product.image }}</td>
+                                <td>{{ product.description }}</td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary"
+                                        (click)="editProduct(product._id)"
+                                    >
+                                        Edit
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-danger"
+                                        (click)="deleteProduct(product._id)"
+                                    >
+                                        Delete
+                                    </button>
+
+                                </td>
+
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
